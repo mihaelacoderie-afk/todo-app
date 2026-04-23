@@ -25,9 +25,9 @@ async function register() {
     const res = await fetch(`${API_URL}/api/auth/register`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
     const data = await res.json();
@@ -39,6 +39,7 @@ async function register() {
 
     showMessage(data.msg || "Cont creat cu succes.");
   } catch (err) {
+    console.error(err);
     showMessage("Eroare server la register.", true);
   }
 }
@@ -56,9 +57,9 @@ async function login() {
     const res = await fetch(`${API_URL}/api/auth/login`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
     const data = await res.json();
@@ -72,6 +73,7 @@ async function login() {
     showMessage("Login reușit.");
     loadTasks();
   } catch (err) {
+    console.error(err);
     showMessage("Eroare server la login.", true);
   }
 }
@@ -91,8 +93,8 @@ async function loadTasks() {
     const res = await fetch(`${API_URL}/api/tasks`, {
       method: "GET",
       headers: {
-        Authorization: token
-      }
+        Authorization: token,
+      },
     });
 
     const data = await res.json();
@@ -104,6 +106,7 @@ async function loadTasks() {
 
     renderTasks(data);
   } catch (err) {
+    console.error(err);
     showMessage("Eroare la încărcarea task-urilor.", true);
   }
 }
@@ -159,9 +162,9 @@ async function addTask() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: token,
       },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text }),
     });
 
     const data = await res.json();
@@ -174,6 +177,7 @@ async function addTask() {
     document.getElementById("taskText").value = "";
     loadTasks();
   } catch (err) {
+    console.error(err);
     showMessage("Eroare la adăugarea task-ului.", true);
   }
 }
@@ -185,8 +189,8 @@ async function deleteTask(id) {
     const res = await fetch(`${API_URL}/api/tasks/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: token
-      }
+        Authorization: token,
+      },
     });
 
     const data = await res.json();
@@ -198,6 +202,7 @@ async function deleteTask(id) {
 
     loadTasks();
   } catch (err) {
+    console.error(err);
     showMessage("Eroare la ștergere.", true);
   }
 }
@@ -210,9 +215,9 @@ async function toggleTask(id, currentCompleted) {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token
+        Authorization: token,
       },
-      body: JSON.stringify({ completed: !currentCompleted })
+      body: JSON.stringify({ completed: !currentCompleted }),
     });
 
     const data = await res.json();
@@ -224,6 +229,7 @@ async function toggleTask(id, currentCompleted) {
 
     loadTasks();
   } catch (err) {
+    console.error(err);
     showMessage("Eroare la actualizare.", true);
   }
 }

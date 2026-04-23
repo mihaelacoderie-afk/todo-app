@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ToDo Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="navbar">
+  <h2>ToDo Dashboard</h2>
+  <div>
+    <button id="themeToggle">🌙</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div class="card" id="authBox">
+    <h3>Login / Register</h3>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Parolă">
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="hidden">
+    <div class="card">
+      <h3>Adaugă Task</h3>
+      <input id="title" placeholder="Titlu">
+      <input id="deadline" type="date">
+      <button onclick="addTask()">Adaugă</button>
+    </div>
+
+    <div class="card">
+      <h3>Taskuri</h3>
+
+      <select id="filter" onchange="getTasks()">
+        <option value="all">Toate</option>
+        <option value="completed">Complete</option>
+        <option value="active">Active</option>
+      </select>
+
+      <ul id="list"></ul>
+    </div>
+  </div>
+
+</div>
+
+<p id="msg"></p>
+
+<script src="script.js"></script>
+</body>
+</html>

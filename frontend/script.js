@@ -1,152 +1,240 @@
-const API = "http://localhost:3000/api";
+const API_URL = window.location.origin;
 
-const msg = t => document.getElementById("msg").innerText = t;
-const token = () => localStorage.getItem("token");
+const authMessage = document.getElementById("authMessage");
+const taskList = document.getElementById("taskList");
 
-function showApp() {
-  document.getElementById("authBox").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
+function getToken() {
+  return localStorage.getItem("token");
 }
 
-function showAuth() {
-  document.getElementById("authBox").classList.remove("hidden");
-  document.getElementById("app").classList.add("hidden");
+function setMessage(message, isError = false) {
+  authMessage.textContent = message;
+  authMessage.style.color = isError ? "#f87171" : "#facc15";
 }
 
-// LOGIN
-async function login() {
-  const email = emailInput();
-  const password = passInput();
-
-  const res = await fetch(API + "/auth/login", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ email, password })
-  });
-
-  const data = await res.json();
-
-  if (data.token) {
-    localStorage.setItem("token", data.token);
-    showApp();
-    getTasks();
-  } else msg(data.message);
-}
-
-// REGISTER
 async function register() {
-  const res = await fetch(API + "/auth/register", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      email: emailInput(),
-      password: passInput()
-    })
-  });
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-  const data = await res.json();
-  msg(data.message);
-}
-
-// ADD TASK
-async function addTask() {
-  await fetch(API + "/tasks", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token()
-    },
-    body: JSON.stringify({
-      title: document.getElementById("title").value,
-      deadline: document.getElementById("deadline").value
-    })
-  });
-
-  getTasks();
-}
-
-// GET TASKS
-async function getTasks() {
-  const res = await fetch(API + "/tasks", {
-    headers: { Authorization: "Bearer " + token() }
-  });
-
-  let tasks = await res.json();
-  const filter = document.getElementById("filter").value;
-
-  if (filter === "completed") tasks = tasks.filter(t => t.completed);
-  if (filter === "active") tasks = tasks.filter(t => !t.completed);
-
-  const list = document.getElementById("list");
-  list.innerHTML = "";
-
-  tasks.forEach(t => {
-    const li = document.createElement("li");
-
-    li.innerHTML = `
-      <div class="${t.completed ? "completed" : ""}">
-        ${t.title}
-      </div>
-      <button onclick="toggle('${t._id}', ${!t.completed})">✔</button>
-      <button onclick="del('${t._id}')">🗑</button>
-    `;
-
-    list.appendChild(li);
-  });
-}
-
-// UPDATE
-async function toggle(id, completed) {
-  await fetch(API + "/tasks/" + id, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token()
-    },
-    body: JSON.stringify({ completed })
-  });
-
-  getTasks();
-}
-
-// DELETE
-async function del(id) {
-  await fetch(API + "/tasks/" + id, {
-    method: "DELETE",
-    headers: { Authorization: "Bearer " + token() }
-  });
-
-  getTasks();
-}
-
-// UTILS
-function logout() {
-  localStorage.removeItem("token");
-  showAuth();
-}
-
-const emailInput = () => document.getElementById("email").value;
-const passInput = () => document.getElementById("password").value;
-
-// DARK MODE
-const btn = document.getElementById("themeToggle");
-
-btn.onclick = () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
-};
-
-window.onload = () => {
-  if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
+  if (!email || !password) {
+    setMessage("Completează email și parolă.", true);
+    return;
   }
 
-  if (token()) {
-    showApp();
-    getTasks();
-  } else {
-    showAuth();
+  try {
+    const response = await fetch(`${API_URL}/api/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.msg || data.message || "Eroare la register.", true);
+      return;
+    }
+
+    setMessage(data.msg || data.message || "Cont creat cu succes.");
+  } catch (error) {
+    setMessage("Eroare server la register.", true);
+  }
+}
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (!email || !password) {
+    setMessage("Completează email și parolă.", true);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.msg || data.message || "Login eșuat.", true);
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+    setMessage("Login reușit.");
+    loadTasks();
+  } catch (error) {
+    setMessage("Eroare server la login.", true);
+  }
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  taskList.innerHTML = "";
+  setMessage("Te-ai delogat.");
+}
+
+async function loadTasks() {
+  const token = getToken();
+
+  if (!token) {
+    setMessage("Nu ești logată.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/tasks`, {
+      method: "GET",
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    const tasks = await response.json();
+
+    if (!response.ok) {
+      setMessage(tasks.msg || "Nu s-au putut încărca task-urile.", true);
+      return;
+    }
+
+    renderTasks(tasks);
+  } catch (error) {
+    setMessage("Eroare la încărcarea task-urilor.", true);
+  }
+}
+
+function renderTasks(tasks) {
+  taskList.innerHTML = "";
+
+  if (!tasks.length) {
+    taskList.innerHTML = "<li>Nu ai task-uri momentan.</li>";
+    return;
+  }
+
+  tasks.forEach((task) => {
+    const li = document.createElement("li");
+    li.className = "task-item";
+
+    li.innerHTML = `
+      <div class="task-left">
+        <span class="task-text ${task.completed ? "completed" : ""}">
+          ${task.text}
+        </span>
+      </div>
+      <div class="task-actions">
+        <button class="complete-btn" onclick="toggleTask('${task._id}', ${task.completed})">
+          ${task.completed ? "Undo" : "Complete"}
+        </button>
+        <button class="delete-btn" onclick="deleteTask('${task._id}')">
+          Delete
+        </button>
+      </div>
+    `;
+
+    taskList.appendChild(li);
+  });
+}
+
+async function addTask() {
+  const token = getToken();
+  const text = document.getElementById("taskText").value.trim();
+
+  if (!token) {
+    setMessage("Trebuie să fii logată.", true);
+    return;
+  }
+
+  if (!text) {
+    setMessage("Scrie un task.", true);
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify({ text }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.msg || "Nu s-a putut adăuga task-ul.", true);
+      return;
+    }
+
+    document.getElementById("taskText").value = "";
+    loadTasks();
+  } catch (error) {
+    setMessage("Eroare la adăugarea task-ului.", true);
+  }
+}
+
+async function deleteTask(id) {
+  const token = getToken();
+
+  try {
+    const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: token,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.msg || "Nu s-a putut șterge task-ul.", true);
+      return;
+    }
+
+    loadTasks();
+  } catch (error) {
+    setMessage("Eroare la ștergere.", true);
+  }
+}
+
+async function toggleTask(id, currentCompleted) {
+  const token = getToken();
+
+  try {
+    const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify({
+        completed: !currentCompleted,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setMessage(data.msg || "Nu s-a putut actualiza task-ul.", true);
+      return;
+    }
+
+    loadTasks();
+  } catch (error) {
+    setMessage("Eroare la actualizare.", true);
+  }
+}
+
+window.onload = () => {
+  if (getToken()) {
+    loadTasks();
   }
 };

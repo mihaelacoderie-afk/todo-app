@@ -2,57 +2,41 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ToDo Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToDo App</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="container">
+    <h1>📝 ToDo App</h1>
 
-<header class="navbar">
-  <h2>ToDo Dashboard</h2>
-  <div>
-    <button id="themeToggle">🌙</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-</header>
+    <div class="auth-box">
+      <h2>Autentificare</h2>
 
-<div class="container">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Parolă" />
 
-  <!-- LOGIN -->
-  <div class="card" id="authBox">
-    <h3>Login / Register</h3>
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Parolă">
-    <button onclick="login()">Login</button>
-    <button onclick="register()">Register</button>
-  </div>
+      <div class="auth-buttons">
+        <button onclick="register()">Register</button>
+        <button onclick="login()">Login</button>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+      </div>
 
-  <!-- APP -->
-  <div id="app" class="hidden">
-    <div class="card">
-      <h3>Adaugă Task</h3>
-      <input id="title" placeholder="Titlu">
-      <input id="deadline" type="date">
-      <button onclick="addTask()">Adaugă</button>
+      <p id="authMessage"></p>
     </div>
 
-    <div class="card">
-      <h3>Taskuri</h3>
+    <div class="task-box">
+      <h2>Task-urile mele</h2>
 
-      <select id="filter" onchange="getTasks()">
-        <option value="all">Toate</option>
-        <option value="completed">Complete</option>
-        <option value="active">Active</option>
-      </select>
+      <div class="task-input-row">
+        <input type="text" id="taskText" placeholder="Scrie un task..." />
+        <button onclick="addTask()">Adaugă</button>
+      </div>
 
-      <ul id="list"></ul>
+      <ul id="taskList"></ul>
     </div>
   </div>
 
-</div>
-
-<p id="msg"></p>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@ const verifyToken = require("./middleware/auth");
 
 const app = express();
 
-// conectare DB
+// conectare la MongoDB
 connectDB();
 
 // middleware
@@ -29,7 +29,7 @@ app.get("/api/protected", verifyToken, (req, res) => {
   });
 });
 
-// 🔥 IMPORTANT PENTRU RENDER
+// port pentru local + Render
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

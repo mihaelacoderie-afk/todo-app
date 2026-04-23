@@ -1,62 +1,53 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-
 const router = express.Router();
+
+const User = require("../models/User"); // ⚠️ EXACT așa (U mare)
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // REGISTER
 router.post("/register", async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ msg: "User există" });
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "Userul există deja" });
-    }
+    const hashed = await bcrypt.hash(password, 10);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({
+    user = new User({
       email,
-      password: hashedPassword
+      password: hashed,
     });
 
     await user.save();
 
-    res.status(201).json({ message: "User creat cu succes" });
+    res.json({ msg: "User creat" });
   } catch (err) {
-    res.status(500).json({ message: "Eroare server", error: err.message });
+    res.status(500).send("Eroare server");
   }
 });
 
 // LOGIN
 router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
+  try {
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User inexistent" });
-    }
+    if (!user) return res.status(400).json({ msg: "User nu există" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Parola greșită" });
-    }
+    if (!isMatch) return res.status(400).json({ msg: "Parolă greșită" });
 
     const token = jwt.sign(
       { id: user._id },
-      "secret123",
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    res.status(200).json({
-      message: "Login reușit",
-      token: token
-    });
+    res.json({ token });
   } catch (err) {
-    res.status(500).json({ message: "Eroare server", error: err.message });
+    res.status(500).send("Eroare server");
   }
 });
 

@@ -2,41 +2,128 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ToDo App</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      background: #334155;
+      color: white;
+    }
+
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    .btn-primary {
+      background: #38bdf8;
+      color: black;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #334155;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    #authMessage {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
 </head>
+
 <body>
+
   <div class="container">
-    <h1>📝 ToDo App</h1>
 
-    <div class="auth-box">
-      <h2>Autentificare</h2>
+    <h1>📋 ToDo App</h1>
 
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Parolă" />
+    <!-- AUTH -->
+    <div class="card">
+      <h3>Autentificare</h3>
 
-      <div class="auth-buttons">
-        <button onclick="register()">Register</button>
-        <button onclick="login()">Login</button>
-        <button onclick="logout()" class="logout-btn">Logout</button>
+      <input id="email" type="email" placeholder="Email" />
+      <input id="password" type="password" placeholder="Parolă" />
+
+      <div>
+        <button class="btn-primary" onclick="register()">Register</button>
+        <button class="btn-primary" onclick="login()">Login</button>
+        <button class="btn-danger" onclick="logout()">Logout</button>
       </div>
 
       <p id="authMessage"></p>
     </div>
 
-    <div class="task-box">
-      <h2>Task-urile mele</h2>
+    <!-- TASKS -->
+    <div class="card">
+      <h3>Task-urile mele</h3>
 
-      <div class="task-input-row">
-        <input type="text" id="taskText" placeholder="Scrie un task..." />
-        <button onclick="addTask()">Adaugă</button>
-      </div>
+      <input id="taskText" placeholder="Scrie un task..." />
+      <button class="btn-primary" onclick="addTask()">Adaugă</button>
 
       <ul id="taskList"></ul>
     </div>
+
   </div>
 
+  <!-- IMPORTANT -->
   <script src="script.js"></script>
+
 </body>
 </html>

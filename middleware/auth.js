@@ -1,25 +1,17 @@
 const jwt = require("jsonwebtoken");
 
-const verifyToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token lipsă" });
-  }
-
-  const token = authHeader.split(" ")[1];
+module.exports = function (req, res, next) {
+  const token = req.header("Authorization");
 
   if (!token) {
-    return res.status(401).json({ message: "Token invalid" });
+    return res.status(401).json({ msg: "Nu există token" });
   }
 
   try {
-    const decoded = jwt.verify(token, "secret123");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(403).json({ message: "Token invalid" });
+    res.status(401).json({ msg: "Token invalid" });
   }
 };
-
-module.exports = verifyToken;
